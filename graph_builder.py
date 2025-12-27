@@ -12,7 +12,8 @@ from constants import (
     CO2_STCP_G_KM,
     VELOCIDADE_PE_KMH,
     MAX_WALK_DIST_METERS,
-    PENALTY_PE
+    PENALTY_PE,
+    PENALTY_TRANSBORDO
 )
 
 
@@ -185,7 +186,7 @@ def avaliar_caminho(G, path):
     if t_pe > 60:
         penalidade += PENALTY_PE
     
-    return tempo + (transbordos*5) + penalidade, co2 + penalidade
+    return tempo + (transbordos*PENALTY_TRANSBORDO) + penalidade, co2 + penalidade
 
 
 def criar_mapa_nomes(stops_metro, stops_stcp):

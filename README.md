@@ -60,4 +60,5 @@ python3 main.py -d DIFICULDADE [facil,medio,dificil]
 - **N_SUBPROBLEMAS** - Tamanho da população
 - **N_GERACOES** - Número de gerações do algoritmo
 - **DIFICULDADE_PADRAO** - Dificuldade do cenário
-- **PENALTY_PE** - Penalidade por andar a pé
+- **PENALTY_PE** - Penalidade por andar mais de uma hora a pé em minutos
+- **PENALTY_TRANSBORDO** - Penalidade por transbordo em minutos
