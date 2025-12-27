@@ -7,12 +7,13 @@ from geopy.distance import geodesic
 from scipy.spatial import cKDTree
 import pandas as pd
 
-
-# Constantes
-CO2_METRO_G_KM = 40.0
-CO2_STCP_G_KM = 109.9
-VELOCIDADE_PE_KMH = 5.0
-MAX_WALK_DIST_METERS = 300
+from constants import (
+    CO2_METRO_G_KM,
+    CO2_STCP_G_KM,
+    VELOCIDADE_PE_KMH,
+    MAX_WALK_DIST_METERS,
+    PENALTY_PE
+)
 
 
 def build_transport_graph(stops_metro, stimes_metro, stops_stcp, stimes_stcp):
@@ -98,7 +99,7 @@ def build_transport_graph(stops_metro, stimes_metro, stops_stcp, stimes_stcp):
     return G
 
 
-def gerar_cenario_random_walk(G, dificuldade='dificil'):
+def gerar_cenario_random_walk(G, dificuldade):
     """
     Gera origem e destino garantindo conectividade através de um passeio aleatório.
     
@@ -111,11 +112,11 @@ def gerar_cenario_random_walk(G, dificuldade='dificil'):
     """
     # Definir número de passos baseado na dificuldade
     if dificuldade == 'facil':
-        steps = random.randint(5, 15)      # Viagem curta (mesma zona)
+        steps = random.randint(15, 50)      # Viagem curta"
     elif dificuldade == 'medio':
-        steps = random.randint(20, 40)     # Viagem média (provável 1 transbordo)
+        steps = random.randint(50, 100)     # Viagem média
     elif dificuldade == 'dificil':
-        steps = random.randint(50, 100)    # Viagem longa (cruzamento da cidade)
+        steps = random.randint(100, 200)
     else:
         steps = 20
 
@@ -180,10 +181,9 @@ def avaliar_caminho(G, path):
         else:
             last_trip = best['trip_id']
             
-    # Penalizações
     penalidade = 0
-    if t_pe > 20:
-        penalidade += 500  # Hard constraint a pé
+    if t_pe > 60:
+        penalidade += PENALTY_PE
     
     return tempo + (transbordos*5) + penalidade, co2 + penalidade
 

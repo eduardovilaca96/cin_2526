@@ -3,10 +3,9 @@ Módulo para otimização multi-objetivo (MOEA/D) de rotas de transporte.
 """
 import networkx as nx
 import random
+
 from graph_builder import avaliar_caminho
-
-
-N_SUBPROBLEMAS = 40  # Tamanho da população do MOEA/D
+from constants import N_SUBPROBLEMAS, N_GERACOES
 
 
 def gerar_pesos_dijkstra(G, origem, destino, w_tempo, w_co2):
@@ -72,7 +71,7 @@ def mutacao(G, path):
         return path
 
 
-def otimizar_moead(G, origem, destino, geracoes=100, n_subproblemas=N_SUBPROBLEMAS):
+def otimizar_moead(G, origem, destino, geracoes=N_GERACOES, n_subproblemas=N_SUBPROBLEMAS):
     """
     Executa o algoritmo MOEA/D para otimização multi-objetivo.
     

@@ -4,14 +4,16 @@ Utilizando MOEA/D para otimizar tempo de viagem e emissões de CO2
 """
 import matplotlib
 matplotlib.use('TkAgg')
+import argparse
 
 from gtfs_loader import load_gtfs_data
 from graph_builder import build_transport_graph, gerar_cenario_random_walk, criar_mapa_nomes
 from optimizer import otimizar_moead, extrair_solucoes_validas
 from visualizer import plotar_pareto_front, mostrar_todas_opcoes, visualizar_grafo_rotas
+from constants import DIFICULDADE_PADRAO
 
 
-def main():
+def main(dificuldade):
     """Função principal do planeador de rotas."""
     
     print("="*60)
@@ -32,7 +34,7 @@ def main():
     print("\n️Fase 2: Construção do Grafo Multimodal")
     print("-" * 60)
     G = build_transport_graph(s_metro, t_metro, s_stcp, t_stcp)
-    print(f" Grafo criado com {G.number_of_nodes()} nós e {G.number_of_edges()} arestas.")
+    print(f"Grafo criado com {G.number_of_nodes()} nós e {G.number_of_edges()} arestas.")
     
     # 3. CRIAR MAPA DE NOMES
     stop_names_dict = criar_mapa_nomes(s_metro, s_stcp)
@@ -40,14 +42,14 @@ def main():
     # 4. GERAR CENÁRIO (ORIGEM E DESTINO)
     print("\nFase 3: Geração de Cenário")
     print("-" * 60)
-    origem, destino = gerar_cenario_random_walk(G, dificuldade='dificil')
+    origem, destino = gerar_cenario_random_walk(G, dificuldade=dificuldade)
     print(f"Origem: {stop_names_dict.get(origem, origem)}")
     print(f"Destino: {stop_names_dict.get(destino, destino)}")
     
     # 5. OTIMIZAÇÃO MOEA/D
     print("\nFase 4: Otimização Multi-Objetivo (MOEA/D)")
     print("-" * 60)
-    populacao, pesos = otimizar_moead(G, origem, destino, geracoes=100)
+    populacao, pesos = otimizar_moead(G, origem, destino)
     
     # 6. EXTRAIR SOLUÇÕES VÁLIDAS
     print("\nFase 5: Extração de Soluções Válidas")
@@ -77,4 +79,16 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(
+        description='Planeador de Rotas Multi-Objetivo para Transportes Públicos do Porto'
+    )
+    parser.add_argument(
+        '--d', '-d',
+        type=str,
+        default=DIFICULDADE_PADRAO,
+        choices=['facil', 'medio', 'dificil'],
+        help=f'Nível de dificuldade do cenário (facil, medio, dificil). Padrão: {DIFICULDADE_PADRAO}'
+    )
+    
+    args = parser.parse_args()
+    main(dificuldade=args.d)

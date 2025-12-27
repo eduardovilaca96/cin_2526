@@ -2,13 +2,13 @@
 Módulo para visualização de rotas e fronteiras de Pareto.
 """
 import matplotlib.pyplot as plt
-import matplotlib.cm as cm
+import matplotlib.colors as mcolors
 import networkx as nx
 import numpy as np
+import random
+
 from graph_builder import CO2_METRO_G_KM, CO2_STCP_G_KM, VELOCIDADE_PE_KMH
-
-
-KCAL_PER_MIN = 4.0  # Estimativa de calorias por minuto a andar
+from constants import KCAL_PER_MIN
 
 
 def plotar_pareto_front(solucoes_validas, origem, destino):
@@ -212,8 +212,9 @@ def visualizar_grafo_rotas(G, solucoes_validas, stop_names_dict):
         
     print(f"\nA gerar esquema gráfico para {num_rotas} rotas...")
     
-    indices_cores = np.linspace(0, 1, num_rotas)
-    cores_unicas = [cm.rainbow(x) for x in indices_cores]
+    hues = np.linspace(0, 1, num_rotas, endpoint=False)
+    cores_unicas = [mcolors.hsv_to_rgb((h, 1.0, 0.90)) for h in hues]
+    random.Random(42).shuffle(cores_unicas)
     
     # Dicionário para guardar info da aresta: (u, v, key) -> texto
     labels_detalhadas = {}
@@ -262,9 +263,9 @@ def visualizar_grafo_rotas(G, solucoes_validas, stop_names_dict):
                 # Definir texto da etiqueta (Label)
                 if curr_mode == 'walk':
                     kcal_seg = curr_time * KCAL_PER_MIN
-                    info_label = f"A PÉ\n{curr_time:.0f} min\n{kcal_seg:.0f} kcal"
+                    info_label = f"A PÉ\n{curr_time:.0f}m | {kcal_seg:.0f}kcal"
                 else:
-                    info_label = f"{curr_mode.upper()}\n{curr_time:.0f} min\n{curr_dist:.1f} km"
+                    info_label = f"{curr_mode.upper()}\n{curr_time:.0f} m | {curr_dist:.1f}km"
                 
                 key = S.add_edge(curr_segment_start, u, color=cor_rota, weight=curr_time)
                 labels_detalhadas[(curr_segment_start, u, key)] = info_label
@@ -297,9 +298,9 @@ def visualizar_grafo_rotas(G, solucoes_validas, stop_names_dict):
         
         if curr_mode == 'walk':
             kcal_seg = curr_time * KCAL_PER_MIN
-            info_label = f"A PÉ\n{curr_time:.0f} min\n{kcal_seg:.0f} kcal"
+            info_label = f"A PÉ\n{curr_time:.0f}m | {kcal_seg:.0f}kcal"
         else:
-            info_label = f"{curr_mode.upper()}\n{curr_time:.0f} min\n{curr_dist:.1f} km"
+            info_label = f"{curr_mode.upper()}\n{curr_time:.0f} m | {curr_dist:.1f}km"
             
         key = S.add_edge(curr_segment_start, v_final, color=cor_rota, weight=curr_time)
         labels_detalhadas[(curr_segment_start, v_final, key)] = info_label
@@ -328,12 +329,12 @@ def visualizar_grafo_rotas(G, solucoes_validas, stop_names_dict):
     # Labels Nós
     node_lbls = nx.get_node_attributes(S, 'label')
     short_lbls = {k: v.split('(')[0][:15] for k, v in node_lbls.items()}
-    nx.draw_networkx_labels(S, pos, labels=short_lbls, font_size=8, font_weight='bold')
+    nx.draw_networkx_labels(S, pos, labels=short_lbls, font_size=10, font_weight='bold')
 
     # Arestas e Labels
     for u, v, key, d in S.edges(data=True, keys=True):
         c = d['color']
-        rad = 0.1 + (key * 0.2)
+        rad = 0.1 + (key * 0.15)
         nx.draw_networkx_edges(S, pos, edgelist=[(u, v)], edge_color=[c], 
                                connectionstyle=f'arc3, rad={rad}', width=2, arrowsize=15)
         
@@ -342,11 +343,20 @@ def visualizar_grafo_rotas(G, solucoes_validas, stop_names_dict):
         x1, y1 = pos[u]
         x2, y2 = pos[v]
         mx, my = (x1 + x2) / 2, (y1 + y2) / 2
-        offset_y = rad * 0.3
-        
-        plt.text(mx, my + offset_y, lbl_txt, 
-                 fontsize=6, color='black', ha='center', va='center',
-                 bbox=dict(facecolor='white', alpha=0.9, edgecolor=c, boxstyle='round,pad=0.2'))
+        dx = x2 - x1
+        dy = y2 - y1
+        dist = np.sqrt(dx**2 + dy**2)
+        if dist > 0:
+            nx_vec = dy / dist
+            ny_vec = -dx / dist
+            sagitta = (rad * dist) / 2
+            lbl_x = mx + (nx_vec * sagitta)
+            lbl_y = my + (ny_vec * sagitta)
+        else:
+             lbl_x, lbl_y = mx, my
+        plt.text(lbl_x, lbl_y, lbl_txt,
+                 fontsize=10, color='black', ha='center', va='center',
+                 bbox=dict(facecolor='white', alpha=0.9, edgecolor=c, boxstyle='round,pad=0.2', linewidth=1.5))
 
     # --- LEGENDA ---
     from matplotlib.lines import Line2D
@@ -357,12 +367,12 @@ def visualizar_grafo_rotas(G, solucoes_validas, stop_names_dict):
         w_time, w_kcal = fitness_por_rota[i]
         
         # Formato: Opção 1: 30min | 500g (10m | 40kcal)
-        lbl = f"Opção {i+1}: {t:.0f}min | {c:.0f}gCO2\nA Pé({w_time:.0f}m | {w_kcal:.0f}kcal)"
+        lbl = f"Opção {i+1}: {t:.0f}min | {c:.0f}gCO2\nA Pé ({w_time:.0f}m | {w_kcal:.0f}kcal)"
         
         legend_elements.append(Line2D([0], [0], color=cores_unicas[i], lw=3, label=lbl))
 
-    plt.legend(handles=legend_elements, loc='upper left', bbox_to_anchor=(1, 1), title="Rotas & Fitness")
-    plt.title("Esquema de Rotas", fontsize=14, fontweight='bold')
+    plt.legend(handles=legend_elements, loc='upper left', bbox_to_anchor=(1, 1), title="Rotas")
+    plt.title("Esquema de Rotas")
     plt.axis('off')
     plt.tight_layout()
     plt.show()
