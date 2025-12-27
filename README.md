@@ -9,33 +9,41 @@
 
 ##  Estrutura do Repositório
 ```
-projeto/
-│             
-├── metro_porto/                
-│   ├── agency.txt
-│   ├── calendar.txt
-│   ├── routes.txt
-│   ├── shapes.txt
-│   ├── stop_times.txt
-│   ├── stops.txt
-│   └── trips.txt
-├── stcp_porto/                 
-|   |── agency.txt
-|   ├── calendar_dates.txt
-|   ├── calendar.txt
-|   ├── routes.txt
-|   ├── shapes.txt
-|   ├── stop_times.txt
-|   ├── stops.txt
-|   ├── transfers.txt
-|   └── trips.txt
+├── code
+│   ├── constants.py
+│   ├── graph_builder.py
+│   ├── gtfs_loader.py
+│   ├── main.py
+│   ├── metro_porto
+│   │   ├── agency.txt
+│   │   ├── calendar.txt
+│   │   ├── routes.txt
+│   │   ├── shapes.txt
+│   │   ├── stops.txt
+│   │   ├── stop_times.txt
+│   │   └── trips.txt
+│   ├── optimizer.py
+│   ├── __pycache__
+│   │   ├── constants.cpython-312.pyc
+│   │   ├── graph_builder.cpython-312.pyc
+│   │   ├── gtfs_loader.cpython-312.pyc
+│   │   ├── optimizer.cpython-312.pyc
+│   │   └── visualizer.cpython-312.pyc
+│   ├── stcp_porto
+│   │   ├── agency.txt
+│   │   ├── calendar_dates.txt
+│   │   ├── calendar.txt
+│   │   ├── routes.txt
+│   │   ├── shapes.txt
+│   │   ├── stops.txt
+│   │   ├── stop_times.txt
+│   │   ├── transfers.txt
+│   │   └── trips.txt
+│   └── visualizer.py
 ├── README.md
-├── constants.py                    
-├── graph_builder.py            
-├── gtfs_loader.py              
-├── main.py                      
-├── optimizer.py                
-├── visualizer.py  
+└── report
+    ├── Apresentacao_CIN__Projeto_.pdf
+    └── Relatorio_CIN.pdf
 ```
 ## Manual de Utilizador
 
