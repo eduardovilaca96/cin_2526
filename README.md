@@ -32,8 +32,8 @@ projeto/
 ├── README.md
 ├── constants.py                    
 ├── graph_builder.py            
-├── main.py                      
 ├── gtfs_loader.py              
+├── main.py                      
 ├── optimizer.py                
 ├── visualizer.py  
 ```
@@ -47,7 +47,7 @@ pip install pandas networkx numpy matplotlib geopy scipy
 
 ### Correr
 ```bash
-python3 main.py -d <ins>DIFICULDADE</ins>
+python3 main.py -d DIFICULDADE [facil,medio,dificil]
 ```
 
 ### Paramêtros Configuráveis -> constants.py
